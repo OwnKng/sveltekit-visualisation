@@ -1,3 +1,95 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+	:root {
+		--color-text-heading: #000000;
+		--color-text-paragraph: #202020;
+		--color-text-input: #202020;
+		--color-background: #ffffff;
+		--color-foreground: #f5f0f6;
+		--color-outline: #ececec;
+		--color-graph-primary: #4056f4;
+		--color-graph-gridlines: #c5c5c5;
+	}
+	.theme-dark {
+		--color-text-heading: #ffffff;
+		--color-text-paragraph: #ffffee;
+		--color-text-input: #202020;
+		--color-background: #07090f;
+		--color-foreground: #12182b;
+		--color-outline: #12182b;
+		--color-graph-primary: #09bc8a;
+		--color-graph-gridlines: #30374e;
+	}
+	.theme-fun {
+		--color-text-heading: #ffffff;
+		--color-text-paragraph: #ffffee;
+		--color-text-input: #202020;
+		--color-background: #131b23;
+		--color-foreground: #ffa69e;
+		--color-outline: #12182b;
+		--color-graph-primary: #131b23;
+		--color-graph-gridlines: #ececec;
+	}
+}
+
+html {
+	box-sizing: border-box;
+	font-size: 100%;
+}
+
+*,
+*:before,
+*:after {
+	box-sizing: inherit;
+}
+
+body {
+	margin: 0;
+	font-weight: 400;
+	line-height: 1.8;
+}
+
+p {
+	font-size: 1.4rem;
+	margin-bottom: 1rem;
+}
+
+h1 {
+	font-size: 2rem;
+}
+
+h2 {
+	font-size: 1.2rem;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+	font-weight: bold;
+	line-height: 1.2;
+}
+
+.axis text {
+	font-size: 12px;
+	fill: var(--color-text-paragraph);
+}
+
+.axis line {
+	stroke: var(--color-text-paragraph);
+}
+
+.gridrows line {
+	stroke: var(--color-graph-gridlines);
+}
+
+.tooltip {
+	padding: 4px;
+	border-radius: 2px;
+	background: white;
+	color: #07090f;
+}

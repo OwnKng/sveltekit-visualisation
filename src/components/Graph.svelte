@@ -1,79 +1,106 @@
-<script>
-	import {scaleLinear} from 'd3-scale'
-	import {extent, max} from 'd3-array'
-	import {axisBottom, axisLeft} from 'd3-axis'
-	import {select} from 'd3-selection'
-	import {line} from 'd3-shape'
-	import { draw, fade } from 'svelte/transition';
-	import {onMount} from 'svelte'
+<script lang="ts">
+	import { scaleLinear } from 'd3-scale'
+	import { extent, max } from 'd3-array'
+	import { line } from 'd3-shape'
+	import { draw, fade } from 'svelte/transition'
+	import { format } from 'd3-format'
 
-	export let data
-	export let width
-	export let height
+	import AxisVertical from './AxisVertical.svelte'
+	import AxisHorizontal from './AxisHorizontal.svelte'
+	import GridRows from './GridRows.svelte'
+
+	export let data: any[]
+	export let width: number
+	export let height: number
+	export let x: string
+	export let y: string
 
 	const margin = {
-		top: 10, 
-		left: 40, 
-		bottom: 20, 
+		top: 10,
+		left: 50,
+		bottom: 20,
 		right: 20
 	}
 
-
-
 	$: innerWidth = width - margin.left - margin.right
-	$: innerHeight = height - margin.top - margin.bottom	
+	$: innerHeight = height - margin.top - margin.bottom
 
-	const getX = (d) => d["year"]
-	const getY = (d) => d['gdpPerCap']
+	const getX = (d: any) => d[x]
+	const getY = (d: any) => d[y]
 
-	$: xScale = scaleLinear().domain(extent(data, getX)).range([0, innerWidth]).nice()
-	$: yScale = scaleLinear().domain([0, max(data, getY)]).range([innerHeight, 0]).nice()
+	$: xScale = scaleLinear().domain(extent(data, getX)).range([0, innerWidth])
 
-	$: lineGenerator = line().x((d) => xScale(getX(d))).y((d) => yScale(getY(d)))
+	$: yScale = scaleLinear()
+		.domain([0, max(data, getY)])
+		.range([innerHeight, 0])
+		.nice()
 
-	let pinXAxis, pinYAxis
-	$: select(pinXAxis).call(axisBottom(xScale).ticks(width / 60))
-	$: select(pinYAxis).call(axisLeft(yScale).ticks(10))
+	$: lineGenerator = line()
+		.x((d) => xScale(getX(d)))
+		.y((d) => yScale(getY(d)))
+		.defined((d) => getY(d) !== null)
 
-	let tooltipData = {}; 
+	//_ tooltip
+	let tooltip = {}
 
 	function handleMouse(event) {
-		const x = Math.round(xScale.invert(event.offsetX - margin.left))
-		const y = getY(data.find((d) => d.year === x))
+		const tx = Math.min(xScale.domain()[1], Math.round(xScale.invert(event.offsetX - margin.left)))
+		const ty = getY(data.find((d) => getX(d) === tx))
 
-		tooltipData.x = xScale(x)
-		tooltipData.y = yScale(y)
-		tooltipData.data = yScale(y)
+		tooltip.x = xScale(tx)
+		tooltip.y = yScale(ty)
+		tooltip.data = ty
 	}
 
 	function handleMouseLeave() {
-		tooltipData.data = null
+		tooltip.data = null
 	}
-
 </script>
 
-<figure width={width}>
-	<svg width='100%' height={height}   >
+<figure {width} {height} class="relative">
+	<svg width="100%" {height}>
 		<g transform={`translate(${margin.left}, ${margin.top})`}>
-			<g
-			class="xAxis"
-			bind:this={pinXAxis}
-			transform="translate(0,{innerHeight})"
-		  />
-		  <g
-		  class="xAxis"
-		  bind:this={pinYAxis}
-		  transform="translate(0,0)"
-		/>
-		{#key data}
-			<path d={lineGenerator(data)} in:draw={{ duration: 1000}}  fill='none' stroke='black' />
-		{/key}
-		{#if tooltipData.data}
-		<circle in:fade={{duration: 200}} out:fade={{duration:200}} cx={tooltipData.x} cy={tooltipData.y} r={8} />
-		{/if}
-		<rect width={innerWidth} height={innerHeight} fill='transparent' on:mousemove={handleMouse} on:mouseleave={handleMouseLeave} />
+			<GridRows scale={yScale} width={innerWidth} numTicks={5} />
+			<AxisVertical scale={yScale} numTicks={5} format={format('.2s')} />
+			<AxisHorizontal scale={xScale} top={innerHeight} />
+			{#key data}
+				<path
+					d={lineGenerator(data)}
+					in:draw={{ duration: 1000 }}
+					fill="none"
+					stroke-width="2"
+					stroke="var(--color-graph-primary)"
+				/>
+			{/key}
+			{#if tooltip.data}
+				<circle
+					in:fade={{ duration: 200 }}
+					out:fade={{ duration: 200 }}
+					cx={tooltip.x}
+					cy={tooltip.y}
+					r={8}
+					stroke="var(--color-outline)"
+					fill="var(--color-graph-primary)"
+				/>
+			{/if}
+			<rect
+				width={innerWidth}
+				height={innerHeight}
+				fill="transparent"
+				on:mousemove={handleMouse}
+				on:mouseleave={handleMouseLeave}
+			/>
 		</g>
 	</svg>
+	{#if tooltip.data}
+		<div
+			class="tooltip shadow-md"
+			style={`
+			position: absolute; 
+			top: ${Math.round(tooltip.y - 20)}px; 
+			left: ${Math.round(tooltip.x)}px; `}
+		>
+			<span>{format('.2s')(tooltip.data)}</span>
+		</div>
+	{/if}
 </figure>
-
-
