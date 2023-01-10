@@ -30,11 +30,6 @@
 		hiLiteIndex = null
 	}
 
-	const clearInput = () => {
-		inputValue = ''
-		searchInput.focus()
-	}
-
 	const setInputVal = (val: string) => {
 		inputValue = removeBold(val)
 		filteredValues = []
@@ -43,18 +38,9 @@
 		dispatch('select', val)
 	}
 
-	const makeMatchBold = (str: string) => {
-		// replace part of (country name === inputValue) with strong tags
-		let matched = str.substring(0, inputValue.length)
-		let makeBold = `<strong>${matched}</strong>`
-		let boldedMatch = str.replace(matched, makeBold)
-		return boldedMatch
-	}
-
 	const removeBold = (str: string) => str.replace(/<(.)*?>/g, '')
 
 	let hiLiteIndex: any = null
-	$: hiLitedCountry = filteredValues[hiLiteIndex]
 
 	const navigateList = (e: KeyboardEvent) => {
 		if (e.key === 'ArrowDown' && hiLiteIndex <= filteredValues.length - 1) {
@@ -71,13 +57,14 @@
 
 <svelte:window on:keydown={navigateList} />
 
-<form class="pt-5 pb-5 " autocomplete="off" on:submit|preventDefault>
+<div>
 	<div class="autocomplete">
 		<label class="block font-bold text-skin-paragraph" for="country">{label}</label>
 		<input
 			class="w-[100%] p-2 shadow-md rounded outline outline-skin-outline"
 			id="auto-input"
 			type="text"
+			name="code"
 			{placeholder}
 			bind:this={searchInput}
 			bind:value={inputValue}
@@ -103,7 +90,4 @@
 			</ul>
 		</div>
 	{/if}
-</form>
-
-<style>
-</style>
+</div>
