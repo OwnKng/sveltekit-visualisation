@@ -22,23 +22,18 @@
 		filteredValues = storageArr
 	}
 
-	/* HANDLING THE INPUT */
-	let searchInput: any // use with bind:this to focus element
-
 	$: if (!inputValue) {
 		filteredValues = []
 		hiLiteIndex = null
 	}
 
 	const setInputVal = (val: string) => {
-		inputValue = removeBold(val)
 		filteredValues = []
 		hiLiteIndex = null
 		document.querySelector('#auto-input').focus()
-		dispatch('select', val)
+		inputValue = val
+		dispatch('select', inputValue)
 	}
-
-	const removeBold = (str: string) => str.replace(/<(.)*?>/g, '')
 
 	let hiLiteIndex: any = null
 
@@ -66,7 +61,6 @@
 			type="text"
 			name="code"
 			{placeholder}
-			bind:this={searchInput}
 			bind:value={inputValue}
 			on:input={filterSelections}
 		/>

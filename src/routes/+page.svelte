@@ -3,18 +3,30 @@
 	import Graph from '@components/Graph.svelte'
 	import Dropdown from '@components/Dropdown.svelte'
 
+	let country = ''
+
+	$: countries.map((d) => d.name).includes(country)
+
 	export let form
 
 	import { enhance } from '$app/forms'
 
 	let w = 0
 	let h = 0
+
+	let disabled = true
+
+	const handleChange = (e) => {
+		if (!countries.map((d) => d.name).includes(e.detail)) return (disabled = true)
+
+		disabled = false
+	}
 </script>
 
 <div class="w-[100%] m-auto max-w-[720px]">
 	<h1 class="text-skin-heading">GDP per capita tracker</h1>
 	<form
-		class="grid grid-cols-[1fr_auto] gap-1 pt-5 pb-5"
+		class="grid grid-cols-[1fr_auto] gap-[10px] pt-5 pb-5"
 		method="POST"
 		use:enhance
 		autocomplete="off"
@@ -23,11 +35,15 @@
 			placeholder="United Kingdom"
 			label="Select a country"
 			data={countries.map((d) => d.name)}
+			on:select={handleChange}
 		/>
 		<button
-			class="flex self-end bg-skin-foreground text-skin-paragraph hover:shadow-l shadow font-bold px-4 text-xl h-[50px] rounded"
-			type="submit">&#x2192;</button
+			{disabled}
+			class="flex self-end items-center bg-skin-foreground text-skin-paragraph hover:shadow-l shadow font-bold px-4 text-xl h-[50px] rounded"
+			type="submit"
 		>
+			<div>&#x2192;</div>
+		</button>
 	</form>
 </div>
 
